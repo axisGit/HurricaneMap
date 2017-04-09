@@ -8,22 +8,7 @@ function initMap() {
         zoom: 8
     });
 
-    // var src = []
-    // for (var i = 40; i < 47; i++) {
-    //     src[i] = 'http://www.nhc.noaa.gov/storm_graphics/api/AL142016_0' + i + 'adv_TRACK.kmz';
-    //     var kmlLayer = new google.maps.KmlLayer(src[i], {
-    //         suppressInfoWindows: true,
-    //         preserveViewport: false,
-    //         map: map
-    //     });
-    //     kmlLayer.addListener('click', function(event) {
-    //         var content = event.featureData.infoWindowHtml;
-    //         var testimonial = document.getElementById('capture');
-    //         testimonial.innerHTML = content;
-    //     });
-    // }
-
-    var src = 'http://www.nhc.noaa.gov/storm_graphics/api/AL142016_015adv_TRACK.kmz';
+    var src = 'https://firebasestorage.googleapis.com/v0/b/randomseed-2308b.appspot.com/o/TRACK.zip?alt=media&token=6f376d02-2fbb-427d-a5a2-509108f800bb';
     var kmlLayer = new google.maps.KmlLayer(src, {
         suppressInfoWindows: true,
         preserveViewport: false,
@@ -39,11 +24,6 @@ function initMap() {
                 coordInfoWindow.setContent(createInfoWindowContent(place, map.getZoom()));
                 coordInfoWindow.setPosition(place);
                 coordInfoWindow.open(map);
-
-                map.addListener('zoom_changed', function() {
-                  coordInfoWindow.setContent(createInfoWindowContent(place, map.getZoom()));
-                  coordInfoWindow.open(map);
-                });
 
         var TILE_SIZE = 256;
 
