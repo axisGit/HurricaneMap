@@ -23,7 +23,9 @@ for i in range(1, 48):
     data.loc[i] = [coor[0], coor[1], speed]
     i += 1
 
+    print coor[0], ',', coor[1], ',', 0
+
 print data
-data.to_csv('data.csv')
+#data.to_csv('data.csv')
 
 
