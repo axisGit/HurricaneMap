@@ -1,0 +1,69 @@
+---
+title: "Untitled"
+author: "Peng Jin"
+date: "4/9/2017"
+output: html_document
+---
+
+```{r}
+setwd("~/desktop/hackathon/")
+insurance_data<-read.csv("allTables_v2.csv")
+```
+
+```{r}
+library(geosphere)
+insurance_data_US<-insurance_data[which(insurance_data$COUNTRY == "US"),]
+insurance_data_US<-insurance_data_US[1:3000,]
+hurri_data<-read.csv("data.csv")
+dis_min<-rep(0,length(insurance_data_US$COUNTRY))
+wind_min<-rep(0,length(insurance_data_US$COUNTRY))
+insurance_data_US<-data.frame(insurance_data_US,dis_min,wind_min)
+lat1=hurri_data$latitude
+lon1=hurri_data$longitude
+center_speed=(hurri_data$speed_knots)*1.151
+lat_long<-data.frame(lon1,lat1,center_speed)
+distance <- rep(0,length(lat_long$lat1))
+for(i in 1:length(insurance_data_US$COUNTRY)){
+  for (j in 1:length(lat_long$lat1)){
+    d=distm(c(insurance_data_US$LONGITUDE[i], insurance_data_US$LATITUDE[i]),c(lat_long$lon1[j], lat_long$lat1[j]),fun=distHaversine)[,1]/1609
+     distance[j] = d
+  }
+  insurance_data_US$dis_min[i]=min(distance)
+  insurance_data_US$wind_min[i] = lat_long$center_speed[which(distance==min(distance))]
+}
+```
+
+```{r}
+data_affected<-insurance_data_US[which(dis_min<50),]
+data_affected<-insurance_data_US[-which(insurance_data_US$ROOFANCH=="NULL"),]
+wind_speed<-rep(0,length(data_affected$TIV))
+for(i in 1:length(data_affected$TIV)){
+if ((data_affected$dis_min)[i]<=10){
+  wind_speed[i]<-10*(data_affected$wind_min)[i]/(data_affected$dis_min)[i]
+}
+if (10<(data_affected$dis_min)[i]&(data_affected$dis_min)[i]<=35){
+  wind_speed[i]<- -((data_affected$wind_min)[i]/50)*(data_affected$dis_min)[i]+(6/5)*(data_affected$wind_min)[i]
+}
+if((data_affected$dis_min)[i]>35){
+  wind_speed[i]<-35
+}
+}
+
+data_affected<-data.frame(data_affected,wind_speed)
+pct<-rep(0,length(data_affected$TIV))
+
+for (i in 1:length(data_affected$TIV)){
+  if (data_affected$wind_speed[i] >= 90){
+    pct[i] = 1
+  }
+  if (data_affected$wind_speed[i]<90 &data_affected$wind_speed[i]>60){
+   pct[i]=0.5
+  }
+
+}  
+Loss<-(pct*data_affected$BLDG_LIMIT-data_affected$DED)-data_affected$PREMIUM
+data_affected<-data.frame(data_affected,Loss)
+write.csv(data_affected,file="A.csv")
+```
+
+
